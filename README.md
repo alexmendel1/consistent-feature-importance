@@ -56,6 +56,8 @@ Key observations:
 - If a feature is used to distinguish a specific time segment, its attribution will be higher/lower for the relevant time slice and small otherwise — we would expect a **low mean/median with a high variance**.
 - Because the TreeSHAP algorithm uses the traffic per split as observed in the sample as weights to average out features, the SHAP values should correctly be re-estimated per time slice.
 
+![Mean Feature Importance vs. Temp. Consistency (Variance)](tfi_plot.png)
+
 ## Installation
 
 ```bash
