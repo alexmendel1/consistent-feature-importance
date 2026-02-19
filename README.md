@@ -1,4 +1,4 @@
-# consistent-feature-importance
+# Temp. Consistent Feature Importance
 
 Rolling-window SHAP feature importance analysis for tree-based models.
 
@@ -23,25 +23,21 @@ Model deployment necessitates careful consideration of a model's consistent cont
 
 ### Recap on SHAP Value Estimation
 
-SHAP (SHapley Additive exPlanation) values decompose the model prediction into additive feature attributions. For a model *f* with features *x₁, ..., xₚ*, the prediction for observation *i* is additively composed of the mean model prediction and each feature's attribution:
+SHAP (SHapley Additive exPlanation) values decompose the model prediction into additive feature attributions. For a model $f$ with features $x_1, \dots, x_p$, the prediction for observation $i$ is additively composed of the mean model prediction $\mathbb{E}[f(x)]$ and each feature's attribution $\varphi_j$:
 
-```
-f(xᵢ) = E[f(x)] + φ₁(xᵢ) + φ₂(xᵢ) + ... + φₚ(xᵢ)
-```
+$$f(x_i) = \mathbb{E}[f(x)] + \varphi_1(x_i) + \varphi_2(x_i) + \cdots + \varphi_p(x_i)$$
 
-The additive feature attributions *φⱼ* are given uniquely by the SHAP value (defined in [Lundberg & Lee, 2017](https://arxiv.org/pdf/1802.03888)):
+The additive feature attributions $\varphi_j$ are given uniquely by the SHAP value (defined in [Lundberg & Lee, 2017](https://arxiv.org/pdf/1802.03888)):
 
-```
-φⱼ = Σ_{S ⊆ {x₁,...,xₚ}\{xⱼ}}  |S|!(p-|S|-1)! / p!  · [ E[f(x) | xₛ ∪ {xⱼ}] - E[f(x) | xₛ] ]
-```
+$$\varphi_j = \sum_{S \subseteq \{x_1, \dots, x_p\} \setminus \{x_j\}} \frac{|S|!\;(p - |S| - 1)!}{p!} \left[ \mathbb{E}[f(x) \mid x_S \cup \{x_j\}] - \mathbb{E}[f(x) \mid x_S] \right]$$
 
-Where *E[f(x) | xₛ]* is the expected value of the model conditional on only the features in *S*. The SHAP value accounts for all possible coalitions of features, weighting them correctly according to their size, to produce consistent, locally accurate, and additive feature attributions.
+Where $\mathbb{E}[f(x) \mid x_S]$ is the expected value of the model conditional on only the features in $S$. The SHAP value accounts for all possible coalitions of features, weighting them correctly according to their size, to produce consistent, locally accurate, and additive feature attributions.
 
 For non-linear functions the order in which features are introduced matters. SHAP values result from averaging over all possible orderings.
 
-The **TreeSHAP** algorithm (used by the `shap` package) intuitively calculates *E[f(x) | xₛ]* per tree by traversing the tree from root to leaf:
+The **TreeSHAP** algorithm (used by the `shap` package) intuitively calculates $\mathbb{E}[f(x) \mid x_S]$ per tree by traversing the tree from root to leaf:
 
-- When a feature from subset *S* is observed, traversal follows the exact decision path consistent with *xₛ*.
+- When a feature from subset $S$ is observed, traversal follows the exact decision path consistent with $x_S$.
 - When missing, the expectation marginalizes over the possible splits using the sample data distribution (node cover proportions).
 
 ### Temporal Stability
